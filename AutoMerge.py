@@ -86,7 +86,7 @@ This file is merged by AutoMerge
 
 AutoMerge is made by Yunseong Ha,
 undergraduate of Kyungpook National University.
-(github.com/yuj09161/AutoMerge)
+(https://github.com/yuj09161/AutoMerge)
 
 Original source names:
     Python file that contains "console_func":
