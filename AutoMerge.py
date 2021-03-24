@@ -102,15 +102,19 @@ Original source names:
 
 # make bottom part
 bottom = f'''console_func = [\n    {(',' + NL + '    ').join(console_names)}\n]
-turtle_func = [\n    {(',' + NL + '    ').join(turtle_names)}\n]
+turtle_func = [\n    {(',' + NL + '    ').join(turtle_names)}\n]''' + '''
 
 if __name__ == '__main__':
     # pylint: disable = no-member
-    for func in console_func:
+    print('#####CONSOLE OUTPUT#####')
+    for index, func in enumerate(console_func, 1):
+        print(f'{index}_{func.__name__}')
         func()
         print()
 
+    print('#####TURTLE OUTPUT#####')
     for func in turtle_func:
+        print(f'{func.__name__}')
         turtle.reset()
         func()
 
