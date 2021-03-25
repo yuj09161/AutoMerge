@@ -1,6 +1,6 @@
 import os
 import re
-import itertools
+import datetime
 
 
 def natsort(sortable):
@@ -37,14 +37,17 @@ for name in natsort(os.listdir(PROGRAM_DIR)):
         else:
             continue
 
+        # determine function title
         title = os.path.splitext(os.path.basename(name))[0].split('_', 1)[1]
 
+        # read source file
         with open(PROGRAM_DIR + name, 'r', encoding='utf-8') as file:
             raw_source = file.read()
 
-        raw_source = re.sub('\n{3,}', '\n\n', raw_source.strip('\n'))
+        # remove unnecessary blank line(s)
+        raw_source = re.sub('\n{3,}', '\n\n', raw_source)
 
-        # get imports
+        # remove import(s) from function part
         lines = raw_source.replace('turtle.done()', '').split('\n')
         linecnt = len(lines)
         k = 0
@@ -55,17 +58,13 @@ for name in natsort(os.listdir(PROGRAM_DIR)):
             else:
                 k += 1
 
-        # give indentation
-        lines = [line.split('\n')[0] for line in lines]
-        lines = [
-            (' ' * 4 + line) for line in
-            itertools.dropwhile(lambda x: not x, lines)
-        ]
-
         # generate source
         source = '\n'.join((
+            # function definition
             f'def {title}():',
-            *lines,
+            # remove blank(s) on sides and give indentation
+            ' ' * 4 + '\n'.join(lines).strip('\n').replace('\n', '\n    '),
+            # blank lines at end
             '\n' * 3
         ))
 
@@ -79,30 +78,32 @@ for name in natsort(os.listdir(PROGRAM_DIR)):
             console_func += source
 
 
-# make head part
+# generate head part
 head = f"""'''
 {'#' * 10}
 This file is merged by AutoMerge
+(Generated at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')})
 
 AutoMerge is made by Yunseong Ha,
 undergraduate of Kyungpook National University.
 (https://github.com/yuj09161/AutoMerge)
+(License: MIT)
 
 Original source names:
     Python file that contains "console_func":
-    {(NL + '    ').join(console_file)}
+    {(NL + ' ' * 4).join(console_file)}
 
     Python file that contains "turtle_func":
-    {(NL + '    ').join(turtle_file)}
+    {(NL + ' ' * 4).join(turtle_file)}
 {'#' * 10}
 '''
 
 """
 
 
-# make bottom part
-bottom = f'''console_func = [\n    {(',' + NL + '    ').join(console_names)}\n]
-turtle_func = [\n    {(',' + NL + '    ').join(turtle_names)}\n]''' + '''
+# generate bottom part
+bottom = f'''console_func = [\n    {(',' + NL + ' ' * 4).join(console_names)}\n]
+turtle_func = [\n    {(',' + NL + ' ' * 4).join(turtle_names)}\n]''' + '''
 
 if __name__ == '__main__':
     # pylint: disable = no-member
@@ -117,6 +118,7 @@ if __name__ == '__main__':
         print(f'{func.__name__}')
         turtle.reset()
         func()
+        print()
 
     turtle.done()
 '''
